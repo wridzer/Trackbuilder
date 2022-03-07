@@ -6,12 +6,17 @@ public class GridBuilder : MonoBehaviour
 {
     //GridSettings
     [SerializeField] private int gridHeight, gridWidth, gridLength;
+    [SerializeField] private GameObject gridPrefab;
     private List<Vector3Int> gridPositions = new List<Vector3Int>();
+    private List<GameObject> gridPrefabs = new List<GameObject>();
 
     //ControlSettings
     private int scrollIndex = 0;
     private Camera cam;
-    [SerializeField] private Vector3Int selectedPos;
+    private GameObject selectedPos;
+
+    //Debugging
+    [SerializeField] private Material selected, plane, normal;
 
     private void Start()
     {
@@ -26,6 +31,14 @@ public class GridBuilder : MonoBehaviour
                 }
             }
         }
+        GameObject grid = new GameObject();
+        grid.name = "grid";
+        foreach (Vector3Int gridPos in gridPositions)
+        {
+            GameObject gridPiece = Instantiate(gridPrefab, gridPos, new Quaternion(), grid.transform);
+            gridPrefabs.Add(gridPiece);
+        }
+
         //set camera
         cam = Camera.main;
     }
@@ -46,9 +59,42 @@ public class GridBuilder : MonoBehaviour
                 scrollIndex--;
             }
         }
+
+        foreach (GameObject gridPiece in gridPrefabs)
+        {
+            if (gridPiece == selectedPos)
+            {
+                gridPiece.GetComponent<BoxCollider>().enabled = true;
+                gridPiece.GetComponent<MeshRenderer>().material = selected;
+                gridPiece.GetComponent<MeshRenderer>().enabled = true;
+            }
+            else if (gridPiece.transform.position.y == scrollIndex)
+            {
+                gridPiece.GetComponent<BoxCollider>().enabled = true;
+                gridPiece.GetComponent<MeshRenderer>().material = plane;
+                gridPiece.GetComponent<MeshRenderer>().enabled = true;
+            }
+            else
+            {
+                gridPiece.GetComponent<BoxCollider>().enabled = false;
+                gridPiece.GetComponent<MeshRenderer>().enabled = false;
+            }
+        }
     }
 
-    void OnGUI()
+    private void FixedUpdate()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100))
+        {
+            Debug.DrawLine(ray.origin, hit.point);
+            selectedPos = hit.transform.gameObject;
+        }
+    }
+
+    /*void OnGUI()
     {
         Vector3 point = new Vector3();
         Event currentEvent = Event.current;
@@ -70,9 +116,9 @@ public class GridBuilder : MonoBehaviour
         GUILayout.Label("Mouse position: " + mousePos);
         GUILayout.Label("World position: " + point.ToString("F3"));
         GUILayout.EndArea();
-    }
+    }*/
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         // Draw a yellow sphere at the transform's position
         foreach(Vector3Int gridPos in gridPositions)
@@ -91,5 +137,5 @@ public class GridBuilder : MonoBehaviour
             }
             Gizmos.DrawSphere(gridPos, 0.2f);
         }
-    }
+    }*/
 }

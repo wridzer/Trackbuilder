@@ -248,11 +248,8 @@ MonoBehaviour:
   gridHeight: 10
   gridWidth: 10
   gridLength: 10
-  gridPrefab: {fileID: 7179953483676957834, guid: 7cfd83e63fa72f14c9b1f456fb000c05, type: 3}
-  selectedPos: {fileID: 0}
-  selected: {fileID: 2100000, guid: 26cd765d9dca5cd4291c8c3d3114ff61, type: 2}
-  plane: {fileID: 2100000, guid: 245a14d24bd902c409d5d942476b808e, type: 2}
-  normal: {fileID: 2100000, guid: faf48759287fc2647bf080bf33a9c465, type: 2}
+  gridPrefab: {fileID: 3196938792101637211, guid: 7cfd83e63fa72f14c9b1f456fb000c05, type: 3}
+  testPrefab: {fileID: 8735034566924515641, guid: f7ad67babedd9d84e8c158ea6e47857a, type: 3}
 --- !u!4 &2046256119
 Transform:
   m_ObjectHideFlags: 0

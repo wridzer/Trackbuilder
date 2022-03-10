@@ -141,6 +141,7 @@ public class Controls
                     (int)hit.transform.parent.transform.position.z);
             } else
             {
+                //TODO: make it invalid!!
                 //place is invalid
                 selectedPos = new Vector3Int(666, 666, 666);
             }

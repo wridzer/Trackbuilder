@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[System.Serializable]
 public class PlaceObjectCommand : ICommand
 {
     public GameObject Prefab { get; private set; }

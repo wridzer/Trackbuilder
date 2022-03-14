@@ -1,8 +1,11 @@
 ﻿using System.Collections;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Assertions;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
 
-
-public class Exporter : MonoBehaviour
+public abstract class Exporter
 {
         //Export scene
         //if (Input.GetKeyDown(KeyCode.E))
@@ -13,4 +16,29 @@ public class Exporter : MonoBehaviour
         //    //SceneManager.UnloadSceneAsync(newScene);
         //    //AssetDatabase.Refresh();
         //}
+    public static void Export(string fileName, List<ICommand> commandList)
+    {
+        Debug.Log("Exporting");
+
+        BinaryFormatter BFormatter = new BinaryFormatter();
+        //Assert.IsFalse(string.IsNullOrEmpty(fileName));
+
+        string url = Path.Combine(Application.persistentDataPath, fileName);
+
+        FileStream fs = null;
+
+        try
+        {
+            fs = new FileStream(url, FileMode.OpenOrCreate);
+
+            BFormatter.Serialize(fs, commandList);
+
+            fs.Flush();
+            fs.Close();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Serialization Error: " + e.Message);
+        }
+    }
 }

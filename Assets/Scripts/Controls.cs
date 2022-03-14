@@ -89,6 +89,15 @@ public class Controls
         {
             Redo();
         }
+        //Import and Export
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Export();
+        }
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            Import();
+        }
     }
 
     private void PlaceBlock()
@@ -122,6 +131,16 @@ public class Controls
             commands[commandIndex].Undo();
             commandIndex--;
         }
+    }
+
+    private void Export()
+    {
+        Exporter.Export("testfile.text", commands);
+    }
+
+    private void Import()
+    {
+
     }
 
     //Get selected Place

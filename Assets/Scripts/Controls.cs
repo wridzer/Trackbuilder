@@ -145,6 +145,7 @@ public class Controls
         {
             command.Execute();
         }
+        commandIndex = commands.Count - 1;
     }
 
     //Get selected Place

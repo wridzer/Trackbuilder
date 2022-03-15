@@ -30,7 +30,7 @@ public class Importer :MonoBehaviour
                 ICommand command = null;
                 if(data.GUID == null)
                 {
-                    //Eraese command here!!
+                    //Eraese command here
                     continue;
                 }
                 else

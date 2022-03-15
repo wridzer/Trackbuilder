@@ -20,6 +20,22 @@ public abstract class Exporter
     {
         Debug.Log("Exporting");
 
+        List<Data> dataList = new List<Data>();
+
+        foreach(ICommand command in commandList)
+        {
+            Data data = new Data();
+            data.positionX = command.Position.x;
+            data.positionY = command.Position.y;
+            data.positionZ = command.Position.z;
+            data.rotationX = command.Rotation.x;
+            data.rotationY = command.Rotation.y;
+            data.rotationZ = command.Rotation.z;
+            data.rotationW = command.Rotation.w;
+            data.GUID = command.Prefab.GetInstanceID();
+            dataList.Add(data);
+        }
+
         BinaryFormatter BFormatter = new BinaryFormatter();
         //Assert.IsFalse(string.IsNullOrEmpty(fileName));
 
@@ -31,7 +47,7 @@ public abstract class Exporter
         {
             fs = new FileStream(url, FileMode.OpenOrCreate);
 
-            BFormatter.Serialize(fs, commandList);
+            BFormatter.Serialize(fs, dataList);
 
             fs.Flush();
             fs.Close();
@@ -40,5 +56,7 @@ public abstract class Exporter
         {
             Debug.LogError("Serialization Error: " + e.Message);
         }
+
+        Debug.Log("Done Exporting: " + url);
     }
 }

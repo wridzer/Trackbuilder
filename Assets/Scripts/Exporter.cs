@@ -4,18 +4,10 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEditor;
 
-public abstract class Exporter
+public class Exporter
 {
-        //Export scene
-        //if (Input.GetKeyDown(KeyCode.E))
-        //{
-        //    //Scene newScene = SceneManager.GetActiveScene();
-        //    //string createdScene = SceneSerialization.SerializeScene(newScene);
-        //    //System.IO.File.WriteAllText(Application.dataPath + "\\newScene.json", createdScene);
-        //    //SceneManager.UnloadSceneAsync(newScene);
-        //    //AssetDatabase.Refresh();
-        //}
     public static void Export(string fileName, List<ICommand> commandList)
     {
         Debug.Log("Exporting");
@@ -32,7 +24,7 @@ public abstract class Exporter
             data.rotationY = command.Rotation.y;
             data.rotationZ = command.Rotation.z;
             data.rotationW = command.Rotation.w;
-            data.GUID = command.Prefab.GetInstanceID();
+            data.GUID = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(command.Prefab));
             dataList.Add(data);
         }
 

@@ -140,7 +140,11 @@ public class Controls
 
     private void Import()
     {
-
+        commands = Importer.Import("testfile.text");
+        foreach(ICommand command in commands)
+        {
+            command.Execute();
+        }
     }
 
     //Get selected Place

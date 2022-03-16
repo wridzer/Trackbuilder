@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Controls
+public class Controls : MonoBehaviour
 {
     //ControlVariables
     private int scrollIndex = 0;
     private Vector3Int selectedPos;
+    private GameObject selectPlane;
 
     //GridVariables
-    private int gridHeight;
-    private Dictionary<Vector3Int, GameObject> gridTiles = new Dictionary<Vector3Int, GameObject>();
+    [HideInInspector] public Vector3Int gridScale;
+    [HideInInspector] public Dictionary<Vector3Int, GameObject> gridTiles = new Dictionary<Vector3Int, GameObject>();
 
     //CommandPattern
     private List<ICommand> commands = new List<ICommand>();
@@ -19,11 +20,12 @@ public class Controls
     //DebugVariables
     public GameObject testPrefab;
 
-    public Controls(Dictionary<Vector3Int, GameObject> _gridTiles, int _gridHeight, GameObject _testPrefab)
+    public void Start()
     {
-        gridHeight = _gridHeight;
-        gridTiles = _gridTiles;
-        testPrefab = _testPrefab;
+        selectPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        selectPlane.GetComponent<MeshCollider>().convex = true;
+        selectPlane.transform.localScale = new Vector3(gridScale.x, 10f, gridScale.z) * 0.1f;
+        selectPlane.transform.position = new Vector3(gridScale.x * 0.5f - 0.5f, 0, gridScale.z * 0.5f - 0.5f);
     }
 
     public void Update()
@@ -35,26 +37,7 @@ public class Controls
 
     private void VisualizeRow()
     {
-        foreach (KeyValuePair<Vector3Int, GameObject> gridTile in gridTiles)
-        {
-            if (gridTile.Key == selectedPos)
-            {
-                gridTile.Value.GetComponentInChildren<BoxCollider>().enabled = true;
-                gridTile.Value.GetComponentInChildren<MeshRenderer>().material.color = Color.blue;
-                gridTile.Value.GetComponentInChildren<MeshRenderer>().enabled = true;
-            }
-            else if (gridTile.Key.y == scrollIndex)
-            {
-                gridTile.Value.GetComponentInChildren<BoxCollider>().enabled = true;
-                gridTile.Value.GetComponentInChildren<MeshRenderer>().material.color = Color.green;
-                gridTile.Value.GetComponentInChildren<MeshRenderer>().enabled = true;
-            }
-            else
-            {
-                gridTile.Value.GetComponentInChildren<BoxCollider>().enabled = false;
-                gridTile.Value.GetComponentInChildren<MeshRenderer>().enabled = false;
-            }
-        }
+        selectPlane.transform.position = new Vector3(selectPlane.transform.position.x, scrollIndex - 0.49f, selectPlane.transform.position.z);
     }
 
     private void HandleInput()
@@ -62,7 +45,7 @@ public class Controls
         //Select Height
         if (Input.GetAxis("Mouse ScrollWheel") > 0)
         {
-            if (scrollIndex < gridHeight - 1)
+            if (scrollIndex < gridScale.y - 1)
             {
                 scrollIndex++;
             }
@@ -157,18 +140,10 @@ public class Controls
         if (Physics.Raycast(ray, out hit, 100))
         {
             Debug.DrawLine(ray.origin, hit.point);
-            if(hit.transform.parent != null)
-            {
-                selectedPos = new Vector3Int(
-                    (int)hit.transform.parent.transform.position.x,
-                    (int)hit.transform.parent.transform.position.y,
-                    (int)hit.transform.parent.transform.position.z);
-            } else
-            {
-                //TODO: make it invalid!!
-                //place is invalid
-                selectedPos = new Vector3Int(666, 666, 666);
-            }
+            selectedPos = new Vector3Int(
+                (int)hit.point.x,
+                (int)hit.point.y,
+                (int)hit.point.z);
         }
     }
 }

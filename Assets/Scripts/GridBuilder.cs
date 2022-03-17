@@ -9,11 +9,8 @@ public class GridBuilder : MonoBehaviour
 {
     //GridSettings
     [SerializeField] private int gridHeight, gridWidth, gridLength;
-    [SerializeField] private GameObject gridPrefab;
 
-
-    private List<Vector3Int> gridPositions = new List<Vector3Int>();
-    private Dictionary<Vector3Int, GameObject> gridTiles = new Dictionary<Vector3Int, GameObject>();
+    private Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
     private Controls controls;
 
     private void Awake()
@@ -25,7 +22,7 @@ public class GridBuilder : MonoBehaviour
             {
                 for (int z = 0; z < gridLength; z++)
                 {
-                    gridPositions.Add(new Vector3Int(x, y, z));
+                    gridTiles.Add(new Vector3Int(x, y, z), null);
                 }
             }
         }

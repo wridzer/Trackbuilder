@@ -17,6 +17,10 @@ public class Exporter
         foreach(ICommand command in commandList)
         {
             Data data = new Data();
+
+            if(command.isErase == true) { data.isErase = true; }
+            else { data.isErase = false; }
+
             data.positionX = command.Position.x;
             data.positionY = command.Position.y;
             data.positionZ = command.Position.z;

@@ -250,8 +250,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridHeight: 10
   gridWidth: 10
-  gridLength: 10
-  gridPrefab: {fileID: 3196938792101637211, guid: 7cfd83e63fa72f14c9b1f456fb000c05, type: 3}
+  gridLength: 15
 --- !u!4 &2046256119
 Transform:
   m_ObjectHideFlags: 0

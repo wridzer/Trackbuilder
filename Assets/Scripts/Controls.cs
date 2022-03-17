@@ -7,11 +7,13 @@ public class Controls : MonoBehaviour
     //ControlVariables
     private int scrollIndex = 0;
     private Vector3Int selectedPos;
+    private bool isSelectedPlaceValid;
     private GameObject selectPlane;
+    private Vector3 objectRotation;
 
     //GridVariables
     [HideInInspector] public Vector3Int gridScale;
-    [HideInInspector] public Dictionary<Vector3Int, GameObject> gridTiles = new Dictionary<Vector3Int, GameObject>();
+    [HideInInspector] public Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
 
     //CommandPattern
     private List<ICommand> commands = new List<ICommand>();
@@ -57,10 +59,26 @@ public class Controls : MonoBehaviour
                 scrollIndex--;
             }
         }
-
+        //Rotation
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            objectRotation.x += 90f;
+            if(objectRotation.x == 360) { objectRotation.x = 0; }
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            objectRotation.y += 90f;
+            if (objectRotation.x == 360) { objectRotation.x = 0; }
+        }
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            objectRotation.z += 90f;
+            if (objectRotation.x == 360) { objectRotation.x = 0; }
+        }
         //Click Input
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+
             PlaceBlock();
         }
         //Redo an Undo
@@ -83,19 +101,37 @@ public class Controls : MonoBehaviour
         }
     }
 
+    private void EraseBlock()
+    {
+        RemoveHistory();
+        
+        if (!isSelectedPlaceValid)
+        {
+            EraseObjectCommand command = new EraseObjectCommand(
+                gridTiles[selectedPos],
+                gridTiles[selectedPos].transform.position,
+                gridTiles[selectedPos].transform.rotation);
+            commands.Add(command);
+            gridTiles = command.Execute(gridTiles);
+            commandIndex++;
+        }
+    }
+
     private void PlaceBlock()
     {
-        //Remove old history
-        for (int i = commandIndex + 1; i < commands.Count; i++)
-        {
-            commands.Remove(commands[i]);
-        }
+        RemoveHistory();
 
-        //TODO: add rotation
-        PlaceObjectCommand command = new PlaceObjectCommand(testPrefab, selectedPos, new Quaternion());
-        commands.Add(command);
-        command.Execute();
-        commandIndex++;
+        //Translate rotation
+        Quaternion placementRotation = Quaternion.Euler(objectRotation);
+
+        //Check if place is valid and place block
+        if (isSelectedPlaceValid)
+        {
+            PlaceObjectCommand command = new PlaceObjectCommand(testPrefab, selectedPos, placementRotation);
+            commands.Add(command);
+            gridTiles = command.Execute(gridTiles);
+            commandIndex++;
+        }
     }
 
     private void Redo()
@@ -103,7 +139,7 @@ public class Controls : MonoBehaviour
         if(commandIndex < commands.Count - 1)
         {
             commandIndex++;
-            commands[commandIndex].Execute();
+            gridTiles = commands[commandIndex].Execute(gridTiles);
         }
     }
 
@@ -111,22 +147,31 @@ public class Controls : MonoBehaviour
     {
         if(commandIndex > -1)
         {
-            commands[commandIndex].Undo();
+            gridTiles = commands[commandIndex].Undo(gridTiles);
             commandIndex--;
         }
     }
 
     private void Export()
     {
-        Exporter.Export("testfile.text", commands);
+        //Export only until current index
+        List<ICommand> exportCommands = new List<ICommand>();
+        for(int i = 0; i <= commandIndex; i++)
+        {
+            exportCommands.Add(commands[i]);
+        }
+
+        Exporter.Export("testfile.text", exportCommands);
     }
 
     private void Import()
     {
+        //TODO: clear lists and dictionaries and remove old objects
+
         commands = Importer.Import("testfile.text");
         foreach(ICommand command in commands)
         {
-            command.Execute();
+            gridTiles = command.Execute(gridTiles);
         }
         commandIndex = commands.Count - 1;
     }
@@ -139,11 +184,19 @@ public class Controls : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, 100))
         {
-            Debug.DrawLine(ray.origin, hit.point);
             selectedPos = new Vector3Int(
                 (int)hit.point.x,
-                (int)hit.point.y,
+                scrollIndex,
                 (int)hit.point.z);
+            if(gridTiles[selectedPos] == null) { isSelectedPlaceValid = true; } else { isSelectedPlaceValid = false; }
+        }
+    }
+
+    private void RemoveHistory()
+    {
+        for (int i = commands.Count - 1; i > commandIndex; i--)
+        {
+            commands.Remove(commands[i]);
         }
     }
 }

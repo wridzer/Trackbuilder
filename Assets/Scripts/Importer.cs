@@ -28,30 +28,15 @@ public class Importer :MonoBehaviour
             foreach (Data data in dataList)
             {
                 ICommand command = null;
-                if(data.GUID == null)
-                {
-                    //Eraese command here
-                    continue;
+
+                //Select Command Type
+                if (data.isErase)
+                { 
+                    command = CreateCommand(typeof(EraseObjectCommand), data);
                 }
                 else
                 {
-                    //Get Prefab
-                    string assetPath = AssetDatabase.GUIDToAssetPath(data.GUID);
-                    GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
-                    if (prefab == null) { Debug.Log(assetPath); continue; }
-                    //Create Command
-                    command = new PlaceObjectCommand(
-                        prefab,
-                        new Vector3(
-                            data.positionX,
-                            data.positionY,
-                            data.positionZ),
-                        new Quaternion(
-                            data.rotationX,
-                            data.rotationY,
-                            data.rotationZ,
-                            data.rotationW
-                            )); 
+                    command = CreateCommand(typeof(PlaceObjectCommand), data);
                 }
 
                 commandList.Add(command);
@@ -63,5 +48,30 @@ public class Importer :MonoBehaviour
         }
 
         return commandList;
+    }
+
+    private static ICommand CreateCommand(Type _classType, Data _data)
+    {
+        //Get Prefab
+        string assetPath = AssetDatabase.GUIDToAssetPath(_data.GUID);
+        GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+        if (prefab == null) { Debug.Log("Error on importing: " + assetPath); return null; }
+
+        //Create Command
+        ICommand command = (ICommand)Activator.CreateInstance(
+            _classType,
+            prefab,
+            new Vector3(
+                _data.positionX,
+                _data.positionY,
+                _data.positionZ),
+            new Quaternion(
+                _data.rotationX,
+                _data.rotationY,
+                _data.rotationZ,
+                _data.rotationW)
+        );
+
+        return command;
     }
 }

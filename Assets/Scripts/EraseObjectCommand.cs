@@ -21,7 +21,7 @@ public class EraseObjectCommand : ICommand
 
     public Dictionary<Vector3, GameObject> Execute(Dictionary<Vector3, GameObject> _gridDictionary)
     {
-        Object.Destroy(GameObjectInstance);
+        Object.Destroy(_gridDictionary[Position]);
         _gridDictionary[Position] = null;
         return _gridDictionary;
     }

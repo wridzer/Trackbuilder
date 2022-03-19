@@ -14,6 +14,7 @@ public class Controls : MonoBehaviour
     //GridVariables
     [HideInInspector] public Vector3Int gridScale;
     [HideInInspector] public Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
+    private GameObject previewObject;
 
     //CommandPattern
     private List<ICommand> commands = new List<ICommand>();
@@ -21,6 +22,8 @@ public class Controls : MonoBehaviour
 
     //DebugVariables
     public GameObject testPrefab;
+    public Material testMaterial;
+    private bool eraseMode = false;
 
     public void Start()
     {
@@ -35,6 +38,10 @@ public class Controls : MonoBehaviour
         HandleInput();
         SelectBlock();
         VisualizeRow();
+        if(previewObject == null || previewObject.transform.position != selectedPos)
+        {
+            PreviewObject();
+        }
     }
 
     private void VisualizeRow()
@@ -78,26 +85,31 @@ public class Controls : MonoBehaviour
         //Click Input
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-
-            PlaceBlock();
+            if (eraseMode) { EraseBlock(); }
+            else { PlaceBlock(); }
         }
         //Redo an Undo
-        if (Input.GetKeyDown(KeyCode.Mouse1))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             Undo();
         }
-        if (Input.GetKeyDown(KeyCode.Mouse2))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             Redo();
         }
         //Import and Export
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             Export();
         }
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.V))
         {
             Import();
+        }
+        //Switch erasemode
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            eraseMode = !eraseMode;
         }
     }
 
@@ -132,6 +144,26 @@ public class Controls : MonoBehaviour
             gridTiles = command.Execute(gridTiles);
             commandIndex++;
         }
+    }
+
+    private void PreviewObject()
+    {
+        if(previewObject != null)
+        {
+            Destroy(previewObject.gameObject);
+        }
+
+        //Translate rotation
+        Quaternion placementRotation = Quaternion.Euler(objectRotation);
+
+        if (isSelectedPlaceValid)
+        {
+            GameObject newPreviewObject = Instantiate(testPrefab, selectedPos, placementRotation);
+            newPreviewObject.GetComponent<Renderer>().material = testMaterial;
+            previewObject = newPreviewObject;
+        }
+
+
     }
 
     private void Redo()
@@ -188,7 +220,13 @@ public class Controls : MonoBehaviour
                 (int)hit.point.x,
                 scrollIndex,
                 (int)hit.point.z);
-            if(gridTiles[selectedPos] == null) { isSelectedPlaceValid = true; } else { isSelectedPlaceValid = false; }
+            if(gridTiles[selectedPos] == null) 
+            {
+                isSelectedPlaceValid = true;
+            } 
+            else { 
+                isSelectedPlaceValid = false; 
+            }
         }
     }
 

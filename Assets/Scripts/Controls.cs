@@ -20,10 +20,10 @@ public class Controls : MonoBehaviour
     private List<ICommand> commands = new List<ICommand>();
     private int commandIndex = -1;
 
-    //DebugVariables
-    public GameObject testPrefab;
-    public Material testMaterial;
-    private bool eraseMode = false;
+    //StateVariables
+    [HideInInspector] public GameObject toolPrefab;
+    [HideInInspector] public Material previewMaterial;
+    [HideInInspector] public bool eraseMode = false;
 
     public void Start()
     {
@@ -36,11 +36,14 @@ public class Controls : MonoBehaviour
     public void Update()
     {
         HandleInput();
-        SelectBlock();
         VisualizeRow();
-        if(previewObject == null || previewObject.transform.position != selectedPos)
+        if(toolPrefab != null)
         {
-            PreviewObject();
+            SelectBlock();
+            if(previewObject == null || previewObject.transform.position != selectedPos)
+            {
+                PreviewObject();
+            }
         }
     }
 
@@ -139,7 +142,7 @@ public class Controls : MonoBehaviour
         //Check if place is valid and place block
         if (isSelectedPlaceValid)
         {
-            PlaceObjectCommand command = new PlaceObjectCommand(testPrefab, selectedPos, placementRotation);
+            PlaceObjectCommand command = new PlaceObjectCommand(toolPrefab, selectedPos, placementRotation);
             commands.Add(command);
             gridTiles = command.Execute(gridTiles);
             commandIndex++;
@@ -158,8 +161,8 @@ public class Controls : MonoBehaviour
 
         if (isSelectedPlaceValid)
         {
-            GameObject newPreviewObject = Instantiate(testPrefab, selectedPos, placementRotation);
-            newPreviewObject.GetComponent<Renderer>().material = testMaterial;
+            GameObject newPreviewObject = Instantiate(toolPrefab, selectedPos, placementRotation);
+            newPreviewObject.GetComponent<Renderer>().material = previewMaterial;
             previewObject = newPreviewObject;
         }
 

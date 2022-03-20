@@ -938,10 +938,10 @@ RectTransform:
   m_Father: {fileID: 1518649453}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 231.7619, y: 488}
+  m_SizeDelta: {x: 231.7619, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1501663735
 MonoBehaviour:
@@ -956,15 +956,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 0
+    m_Left: 10
+    m_Right: 10
+    m_Top: 10
+    m_Bottom: 10
+  m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 100, y: 100}
-  m_Spacing: {x: 0, y: 0}
+  m_Spacing: {x: 5, y: 5}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!114 &1501663736
@@ -1053,12 +1053,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1273,6 +1273,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaf07e4e8926cd34b8bd4fa94ad11e20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabsPath: Assets/TestPrefabs/
+  importPath: 
+  exportPath: 
+  ToolButtonPrefab: {fileID: 3436138930007210021, guid: ca28051033f98e44baa4b5881167f3ae, type: 3}
+  toolSelector: {fileID: 1501663733}
+  previewMat: {fileID: 2100000, guid: faf48759287fc2647bf080bf33a9c465, type: 2}
   gridHeight: 10
   gridWidth: 10
   gridLength: 15
@@ -1315,9 +1321,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1be3af683d78fa14aa3decdcc5ee7c8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridScale: {x: 0, y: 0, z: 0}
-  testPrefab: {fileID: 8735034566924515641, guid: f7ad67babedd9d84e8c158ea6e47857a, type: 3}
-  testMaterial: {fileID: 2100000, guid: faf48759287fc2647bf080bf33a9c465, type: 2}
+  gridScale: {x: 10, y: 10, z: 15}
+  toolPrefab: {fileID: 0}
+  previewMaterial: {fileID: 2100000, guid: faf48759287fc2647bf080bf33a9c465, type: 2}
+  eraseMode: 0
 --- !u!1 &2061288738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1415,16 +1422,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fda3636c310e5843acc5cc132860579, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boost: 3.5
+  boost: 1
   positionLerpTime: 0.2
   mouseSensitivityCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 0.5
+      time: 0.0012779236
+      value: 1.5
       inSlope: 0
-      outSlope: 5
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0

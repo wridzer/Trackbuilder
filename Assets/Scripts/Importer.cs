@@ -55,6 +55,7 @@ public class Importer :MonoBehaviour
         //Get Prefab
         string assetPath = AssetDatabase.GUIDToAssetPath(_data.GUID);
         GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+        Debug.Log(assetPath);
         if (prefab == null) { Debug.Log("Error on importing: " + assetPath); return null; }
 
         //Create Command

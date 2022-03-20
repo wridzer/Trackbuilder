@@ -1,12 +1,19 @@
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.RuntimeSceneSerialization;
 using UnityEngine.SceneManagement;
 using UnityEditor;
+using UnityEngine.UI;
 
 public class GridBuilder : MonoBehaviour
 {
+    //General settings
+    public string prefabsPath, importPath, exportPath;
+    public GameObject ToolButtonPrefab, toolSelector;
+    public Material previewMat;
+
     //GridSettings
     [SerializeField] private int gridHeight, gridWidth, gridLength;
 
@@ -27,14 +34,28 @@ public class GridBuilder : MonoBehaviour
             }
         }
 
-        //Create parent for grid to organize hierarchy
-        GameObject grid = new GameObject();
-        grid.name = "grid";
-
         //Set settings on control
         controls = GetComponent<Controls>();
         controls.gridTiles = gridTiles;
         controls.gridScale = new Vector3Int(gridWidth, gridHeight, gridLength);
+        controls.previewMaterial = previewMat;
+
+        StateMachine statemachine = new StateMachine();
+
+        string[] files = System.IO.Directory.GetFiles(prefabsPath, "*.prefab");
+
+        foreach (string file in files)
+        {
+
+            GameObject prefab = AssetDatabase.LoadMainAssetAtPath(Path.Combine(file)) as GameObject;
+
+            State newState = new ToolState(typeof(PlaceObjectCommand), prefab, controls);
+            statemachine.AddState(newState);
+            GameObject newButton = Instantiate(ToolButtonPrefab, toolSelector.transform);
+            newButton.GetComponent<ToolButton>().SetVariables(statemachine, newState);
+            Texture2D buttonImage = AssetPreview.GetMiniThumbnail(prefab);
+            newButton.GetComponentInChildren<RawImage>().texture = buttonImage;
+        }
     }
 
 }

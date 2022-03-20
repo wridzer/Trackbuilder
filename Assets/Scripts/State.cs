@@ -3,17 +3,9 @@ using System.Collections;
 using UnityEngine;
 
 
-public abstract class State<T>
+public abstract class State
 {
-    Type commandType { get; set; }
-
-    GameObject prefab { get; set; }
-
-    State(Type _commandType, GameObject _prefab)
-    {
-        commandType = _commandType;
-        prefab = _prefab;
-    }
+    public GameObject prefab { get; set; }
 
     public abstract void OnEnter();
     public abstract void OnUpdate();

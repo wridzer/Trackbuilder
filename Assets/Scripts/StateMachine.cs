@@ -4,25 +4,14 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class StateMachine<T>
+public class StateMachine
 {
-    private State<T> currentState;
-    private Dictionary<System.Type, State<T>> allStates = new Dictionary<System.Type, State<T>>();
+    private State currentState;
+    private Dictionary<GameObject, State> allStates = new Dictionary<GameObject, State>();
 
-    public T pOwner
+    public void AddState(State _State)
     {
-        get;
-        protected set;
-    }
-
-    public StateMachine(T _owner)
-    {
-        pOwner = _owner;
-    }
-
-    public void AddState(State<T> _State)
-    {
-        allStates.Add(_State.GetType(), _State);
+        allStates.Add(_State.prefab, _State);
     }
 
     public void Update()
@@ -30,12 +19,12 @@ public class StateMachine<T>
         currentState?.OnUpdate();
     }
 
-    public void SwitchState(System.Type _type)
+    public void SwitchState(GameObject _Prefab)
     {
         currentState?.OnExit();
-        if (allStates.ContainsKey(_type))
+        if (allStates.ContainsKey(_Prefab))
         {
-            currentState = allStates[_type];
+            currentState = allStates[_Prefab];
         }
         currentState?.OnEnter();
     }

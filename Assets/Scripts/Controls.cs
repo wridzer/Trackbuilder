@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Controls : MonoBehaviour
 {
@@ -12,8 +13,8 @@ public class Controls : MonoBehaviour
     private Vector3 objectRotation;
 
     //GridVariables
-    [HideInInspector] public Vector3Int gridScale;
-    [HideInInspector] public Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
+    public Vector3Int gridScale;
+    public Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
     private GameObject previewObject;
 
     //CommandPattern
@@ -25,7 +26,7 @@ public class Controls : MonoBehaviour
     [HideInInspector] public Material previewMaterial;
     [HideInInspector] public bool eraseMode = false;
 
-    public void Start()
+    public void OnEnable()
     {
         selectPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
         selectPlane.GetComponent<MeshCollider>().convex = true;
@@ -91,17 +92,23 @@ public class Controls : MonoBehaviour
         //Click Input
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            if (eraseMode) { EraseBlock(); }
-            else { PlaceBlock(); }
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                if (eraseMode) { EraseBlock(); }
+                else { PlaceBlock(); }
+            }
         }
         //Redo an Undo
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKey(KeyCode.LeftControl))
         {
-            Undo();
-        }
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            Redo();
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                Undo();
+            }
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                Redo();
+            }
         }
         //Switch erasemode
         if (Input.GetKeyDown(KeyCode.E))
@@ -179,7 +186,7 @@ public class Controls : MonoBehaviour
         }
     }
 
-    public void Export(string _filePath)
+    public void Export(string _filePath, GridBuilder gb)
     {
         //Export only until current index
         List<ICommand> exportCommands = new List<ICommand>();
@@ -188,24 +195,24 @@ public class Controls : MonoBehaviour
             exportCommands.Add(commands[i]);
         }
 
-        Exporter.Export("testfile.text", exportCommands);
+        Exporter.Export("testfile.txt", _filePath, exportCommands, gb);
     }
 
-    private void ClearGrid()
+    public void ClearGrid()
     {
         foreach (ICommand c in commands)
         {
             c.Undo(gridTiles);
         }
+        Destroy(selectPlane);
+        Destroy(previewObject);
         commands.Clear();
         commandIndex = -1;
     }
 
-    public void Import(string _filePath)
+    public void Import(List<ICommand> _commands)
     {
-        ClearGrid();
-
-        commands = Importer.Import(_filePath);
+        commands = _commands;
         foreach(ICommand command in commands)
         {
             gridTiles = command.Execute(gridTiles);
@@ -225,12 +232,13 @@ public class Controls : MonoBehaviour
                 (int)hit.point.x,
                 scrollIndex,
                 (int)hit.point.z);
-            if(gridTiles[selectedPos] == null) 
+            if (gridTiles[selectedPos] == null)
             {
                 isSelectedPlaceValid = true;
-            } 
-            else { 
-                isSelectedPlaceValid = false; 
+            }
+            else
+            {
+                isSelectedPlaceValid = false;
             }
         }
     }

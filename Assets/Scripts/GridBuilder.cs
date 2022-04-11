@@ -10,17 +10,23 @@ using UnityEngine.UI;
 public class GridBuilder : MonoBehaviour
 {
     //General settings
-    public string prefabsPath, exportPath;
-    public GameObject ToolButtonPrefab, toolSelector;
+    public string assetBundleName { get; set; }
+    public string exportPath { get; set; }
+    public GameObject ToolButtonPrefab, toolSelector, EraseButtonPrefab;
     public Material previewMat;
+    public Texture2D eraseButtonTexure;
 
     //GridSettings
-    [SerializeField] private int gridHeight, gridWidth, gridLength;
+    public int gridHeight { get; set; }
+    public int gridWidth { get; set; }
+    public int gridLength{ get; set; }
 
     private Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
-    private Controls controls;
+    private List<GameObject> toolsList = new List<GameObject>();
+    public Controls controls;
+    private StateMachine stateMachine;
 
-    private void Awake()
+    public void BuildGrid()
     {
         //Generate grid
         for (int x = 0; x < gridWidth; x++)
@@ -39,32 +45,66 @@ public class GridBuilder : MonoBehaviour
         controls.gridTiles = gridTiles;
         controls.gridScale = new Vector3Int(gridWidth, gridHeight, gridLength);
         controls.previewMaterial = previewMat;
+        controls.enabled = true;
 
         //Create states for tools
-        StateMachine statemachine = new StateMachine();
-        string[] files = System.IO.Directory.GetFiles(prefabsPath, "*.prefab");
+        stateMachine = new StateMachine();
+        AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, assetBundleName));
+        Object[] bundleAssets = bundle.LoadAllAssets();
 
-        foreach (string file in files)
+        //Add toolbutton for erase
+        GameObject newEraseButton = Instantiate(EraseButtonPrefab, toolSelector.transform);
+        newEraseButton.GetComponent<EraseButton>().gridBuilder = this;
+        toolsList.Add(newEraseButton);
+
+        foreach (object asset in bundleAssets)
         {
-            GameObject prefab = AssetDatabase.LoadMainAssetAtPath(Path.Combine(file)) as GameObject;
+            //load prefab
+            GameObject prefab = (GameObject)asset;
 
+            //create state in statemachine
             State newState = new ToolState(typeof(PlaceObjectCommand), prefab, controls);
-            statemachine.AddState(newState);
+            stateMachine.AddState(newState);
+
+            //create button with image
             GameObject newButton = Instantiate(ToolButtonPrefab, toolSelector.transform);
-            newButton.GetComponent<ToolButton>().SetVariables(statemachine, newState);
-            Texture2D buttonImage = AssetPreview.GetMiniThumbnail(prefab);
+            newButton.GetComponent<ToolButton>().SetVariables(stateMachine, newState);
+            Texture2D buttonImage = AssetPreview.GetAssetPreview(prefab);
             newButton.GetComponentInChildren<RawImage>().texture = buttonImage;
+            toolsList.Add(newButton);
+        }
+    }
+
+    public void ClearAll()
+    {
+        if(controls != null)
+        {
+            controls.ClearGrid();
+            controls.enabled = false;
+            stateMachine.ClearStates();
+            foreach(var tool in toolsList)
+            {
+                Destroy(tool.gameObject);
+            }
+            toolsList.Clear();
         }
     }
 
     public void ImportGrid(string _filePath)
     {
-        controls.Import(_filePath);
+        ClearAll();
+        List <ICommand> importData = Importer.Import(_filePath, this);
+        BuildGrid();
+        controls.Import(importData);
     }
 
     public void ExportGrid()
     {
-        controls.Export(exportPath);
+        if(exportPath == null)
+        {
+            string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
+            exportPath = directory;
+        }
+        controls.Export(exportPath, this);
     }
-
 }

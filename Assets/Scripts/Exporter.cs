@@ -8,12 +8,12 @@ using UnityEditor;
 
 public class Exporter
 {
-    public static void Export(string fileName, List<ICommand> commandList)
+    public static void Export(string fileName, string filePath, List<ICommand> commandList, GridBuilder _builderInstance)
     {
         Debug.Log("Exporting");
 
+        //Export Grid items
         List<Data> dataList = new List<Data>();
-
         foreach(ICommand command in commandList)
         {
             Data data = new Data();
@@ -32,10 +32,22 @@ public class Exporter
             dataList.Add(data);
         }
 
-        BinaryFormatter BFormatter = new BinaryFormatter();
-        //Assert.IsFalse(string.IsNullOrEmpty(fileName));
+        //Export gridsettings
+        Settings settings = new Settings();
+        settings.assetBundleName = _builderInstance.assetBundleName;
+        settings.exportPath = _builderInstance.exportPath;
+        settings.gridHeight = _builderInstance.gridHeight;
+        settings.gridWidth = _builderInstance.gridWidth;
+        settings.gridLength = _builderInstance.gridLength;
 
-        string url = Path.Combine(Application.persistentDataPath, fileName);
+        //Create exportable file
+        GridBuilderProjectData exportData = new GridBuilderProjectData();
+        exportData.data = dataList;
+        exportData.settings = settings;
+
+        BinaryFormatter BFormatter = new BinaryFormatter();
+
+        string url = Path.Combine(filePath, fileName);
 
         FileStream fs = null;
 
@@ -43,7 +55,7 @@ public class Exporter
         {
             fs = new FileStream(url, FileMode.OpenOrCreate);
 
-            BFormatter.Serialize(fs, dataList);
+            BFormatter.Serialize(fs, exportData);
 
             fs.Flush();
             fs.Close();

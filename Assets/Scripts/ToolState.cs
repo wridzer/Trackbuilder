@@ -9,30 +9,17 @@ public class ToolState : State
 
     Controls controller { get; set; }
 
-    private bool isEraseTool;
 
     public ToolState(Type _commandType, GameObject _prefab, Controls _controller)
     {
         commandType = _commandType;
         prefab = _prefab;
         controller = _controller;
-
-        if (commandType == typeof(EraseObjectCommand))
-        {
-            isEraseTool = true;
-        }
     }
 
     public override void OnEnter()
     {
-        if(isEraseTool)
-        {
-            controller.eraseMode = true;
-        }
-        else
-        {
-            controller.toolPrefab = prefab;
-        }
+        controller.toolPrefab = prefab;
     }
 
     public override void OnExit()

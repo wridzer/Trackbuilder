@@ -28,4 +28,9 @@ public class StateMachine
         }
         currentState?.OnEnter();
     }
+
+    public void ClearStates()
+    {
+        allStates.Clear();
+    }
 }

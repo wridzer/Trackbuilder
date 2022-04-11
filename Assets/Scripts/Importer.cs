@@ -8,7 +8,7 @@ using System;
 
 public class Importer :MonoBehaviour
 {
-    public static List<ICommand> Import(string fileName)
+    public static List<ICommand> Import(string fileName, GridBuilder _builderInstance)
     {
         Debug.Log("Importing");
 
@@ -17,14 +17,19 @@ public class Importer :MonoBehaviour
         BinaryFormatter BFormatter = new BinaryFormatter();
         FileStream fs = null;
         List<Data> dataList = new List<Data>();
+        Settings settings = new Settings();
+        GridBuilderProjectData importData = new GridBuilderProjectData();
         List<ICommand> commandList = new List<ICommand>();
 
         try
         {
             fs = new FileStream(url, FileMode.Open);
 
-            dataList = (List<Data>)BFormatter.Deserialize(fs);
+            importData = (GridBuilderProjectData)BFormatter.Deserialize(fs);
+            dataList = importData.data;
+            settings = importData.settings;
 
+            //Import gridobjects
             foreach (Data data in dataList)
             {
                 ICommand command = null;
@@ -41,6 +46,13 @@ public class Importer :MonoBehaviour
 
                 commandList.Add(command);
             }
+
+            //Import gridsettings
+             _builderInstance.assetBundleName = settings.assetBundleName;
+             _builderInstance.exportPath = settings.exportPath;
+             _builderInstance.gridHeight = settings.gridHeight;
+             _builderInstance.gridWidth = settings.gridWidth;
+             _builderInstance.gridLength = settings.gridLength;
         }
         catch (System.Exception e)
         {

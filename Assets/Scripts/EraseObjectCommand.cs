@@ -21,7 +21,9 @@ public class EraseObjectCommand : ICommand
 
     public Dictionary<Vector3, GameObject> Execute(Dictionary<Vector3, GameObject> _gridDictionary)
     {
-        Object.Destroy(_gridDictionary[Position]);
+        GameObjectInstance = _gridDictionary[Position];
+
+        _gridDictionary[Position].SetActive(false);
         _gridDictionary[Position] = null;
         return _gridDictionary;
     }
@@ -29,6 +31,7 @@ public class EraseObjectCommand : ICommand
     public Dictionary<Vector3, GameObject> Undo(Dictionary<Vector3, GameObject> _gridDictionary)
     {
         GameObjectInstance = GameObject.Instantiate(Prefab, Position, Rotation);
+        GameObjectInstance.SetActive(true);
         _gridDictionary[Position] = GameObjectInstance;
         return _gridDictionary;
     }

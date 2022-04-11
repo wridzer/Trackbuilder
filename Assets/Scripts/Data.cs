@@ -4,7 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class Data
 {
-    public bool isErase { get; set; }
+    public bool isErase { get; set; } // For importer to know if it's a Place or Erase command
     public float positionX { get; set; }
     public float positionY { get; set; }
     public float positionZ { get; set; }

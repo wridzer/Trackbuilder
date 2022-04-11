@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class GridBuilder : MonoBehaviour
 {
     //General settings
-    public string prefabsPath, importPath, exportPath;
+    public string prefabsPath, exportPath;
     public GameObject ToolButtonPrefab, toolSelector;
     public Material previewMat;
 
@@ -40,13 +40,12 @@ public class GridBuilder : MonoBehaviour
         controls.gridScale = new Vector3Int(gridWidth, gridHeight, gridLength);
         controls.previewMaterial = previewMat;
 
+        //Create states for tools
         StateMachine statemachine = new StateMachine();
-
         string[] files = System.IO.Directory.GetFiles(prefabsPath, "*.prefab");
 
         foreach (string file in files)
         {
-
             GameObject prefab = AssetDatabase.LoadMainAssetAtPath(Path.Combine(file)) as GameObject;
 
             State newState = new ToolState(typeof(PlaceObjectCommand), prefab, controls);
@@ -56,6 +55,16 @@ public class GridBuilder : MonoBehaviour
             Texture2D buttonImage = AssetPreview.GetMiniThumbnail(prefab);
             newButton.GetComponentInChildren<RawImage>().texture = buttonImage;
         }
+    }
+
+    public void ImportGrid(string _filePath)
+    {
+        controls.Import(_filePath);
+    }
+
+    public void ExportGrid()
+    {
+        controls.Export(exportPath);
     }
 
 }

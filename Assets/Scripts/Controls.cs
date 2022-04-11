@@ -74,16 +74,19 @@ public class Controls : MonoBehaviour
         {
             objectRotation.x += 90f;
             if(objectRotation.x == 360) { objectRotation.x = 0; }
+            PreviewObject();
         }
         if (Input.GetKeyDown(KeyCode.T))
         {
             objectRotation.y += 90f;
             if (objectRotation.x == 360) { objectRotation.x = 0; }
+            PreviewObject();
         }
         if (Input.GetKeyDown(KeyCode.Y))
         {
             objectRotation.z += 90f;
             if (objectRotation.x == 360) { objectRotation.x = 0; }
+            PreviewObject();
         }
         //Click Input
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -99,15 +102,6 @@ public class Controls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             Redo();
-        }
-        //Import and Export
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            Export();
-        }
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            Import();
         }
         //Switch erasemode
         if (Input.GetKeyDown(KeyCode.E))
@@ -165,8 +159,6 @@ public class Controls : MonoBehaviour
             newPreviewObject.GetComponent<Renderer>().material = previewMaterial;
             previewObject = newPreviewObject;
         }
-
-
     }
 
     private void Redo()
@@ -187,7 +179,7 @@ public class Controls : MonoBehaviour
         }
     }
 
-    private void Export()
+    public void Export(string _filePath)
     {
         //Export only until current index
         List<ICommand> exportCommands = new List<ICommand>();
@@ -199,11 +191,21 @@ public class Controls : MonoBehaviour
         Exporter.Export("testfile.text", exportCommands);
     }
 
-    private void Import()
+    private void ClearGrid()
     {
-        //TODO: clear lists and dictionaries and remove old objects
+        foreach (ICommand c in commands)
+        {
+            c.Undo(gridTiles);
+        }
+        commands.Clear();
+        commandIndex = -1;
+    }
 
-        commands = Importer.Import("testfile.text");
+    public void Import(string _filePath)
+    {
+        ClearGrid();
+
+        commands = Importer.Import(_filePath);
         foreach(ICommand command in commands)
         {
             gridTiles = command.Execute(gridTiles);

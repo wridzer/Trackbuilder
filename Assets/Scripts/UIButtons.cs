@@ -1,9 +1,12 @@
 ﻿using System.Collections;
-using UnityEditor;
+using System;
+//using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+using System.Diagnostics;
+using UnityEditor;
 
 public class UIButtons : MonoBehaviour
 {
@@ -17,30 +20,33 @@ public class UIButtons : MonoBehaviour
         settingsMenu.SetActive(!settingsMenu.activeSelf);
     }
 
-    public void BrowsePrefabs()
-    {
-        string directory = EditorUtility.OpenFilePanel("Select Directory", "", "");
-        inputFieldPrefabs.text = directory;
-        string fileName = Path.GetFileName(directory);
-        gridBuilder.GetComponent<GridBuilder>().assetBundleName = fileName;
-        OnValueChanged();
-    }
+    //public async void BrowsePrefabs()
+    //{
+    //    Process process =  Process.Start("explorer.exe", "/select,");
+    //    process.WaitForInputIdle();
+    //    string directory = process.StandardOutput.ToString();
+    //    //string directory = EditorUtility.OpenFilePanel("Select Directory", "", "");
+    //    inputFieldPrefabs.text = directory;
+    //    string fileName = Path.GetFileName(directory);
+    //    gridBuilder.GetComponent<GridBuilder>().assetBundleName = fileName;
+    //    OnValueChanged();
+    //}
 
-    public void BrowseExport()
-    {
-        string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
-        inputFieldExport.text = directory;
-        gridBuilder.GetComponent<GridBuilder>().exportPath = directory;
-    }
+    //public void BrowseExport()
+    //{
+    //    string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
+    //    inputFieldExport.text = directory;
+    //    gridBuilder.GetComponent<GridBuilder>().exportPath = directory;
+    //}
 
-    public void BrowseImport()
-    {
-        string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
-        inputFieldExport.text = directory;
-        //clear existing grid
-        gridBuilder.GetComponent<GridBuilder>().ImportGrid(directory);
-        settingsMenu.SetActive(false);
-    }
+    //public void BrowseImport()
+    //{
+    //    string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
+    //    inputFieldExport.text = directory;
+    //    //clear existing grid
+    //    gridBuilder.GetComponent<GridBuilder>().ImportGrid(directory);
+    //    settingsMenu.SetActive(false);
+    //}
 
     public void OnValueChanged()
     {
@@ -61,15 +67,45 @@ public class UIButtons : MonoBehaviour
         settingsMenu.SetActive(false);
     }
 
-    public void ImportButton()
+    public void ImportButton(TMP_InputField _inputfield)
     {
-        string directory = EditorUtility.OpenFilePanel("Select Directory", "", "");
+        string directory = _inputfield.text;
         gridBuilder.GetComponent<GridBuilder>().ImportGrid(directory);
         settingsMenu.SetActive(false);
+        if (Directory.Exists(directory))
+        {
+        } else
+        {
+            EditorUtility.DisplayDialog("Error", "Please enter a valid import path", "Ok");
+        }
     }
 
-    public void ExportButton()
+    public void ExportButton(TMP_InputField _inputfield)
     {
-        gridBuilder.GetComponent<GridBuilder>().ExportGrid();
+        string directory = _inputfield.text;
+        if (Directory.Exists(directory))
+        {
+            gridBuilder.GetComponent<GridBuilder>().exportPath = directory;
+            gridBuilder.GetComponent<GridBuilder>().ExportGrid();
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Error", "Please enter a valid export path", "Ok");
+        }
+    }
+
+    public void PrefabButton(TMP_InputField _inputfield)
+    {
+        string directory = _inputfield.text;
+        try
+        {
+            string fileName = Path.GetFileName(directory);
+            gridBuilder.GetComponent<GridBuilder>().assetBundleName = fileName;
+            OnValueChanged();
+        }
+        catch (Exception ex)
+        {
+            EditorUtility.DisplayDialog("Error", "Please enter a valid prefabs path", "Ok");
+        }
     }
 }

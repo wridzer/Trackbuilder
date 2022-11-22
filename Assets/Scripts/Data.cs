@@ -12,6 +12,6 @@ public class Data
     public float rotationY { get; set; }
     public float rotationZ { get; set; }
     public float rotationW { get; set; }
-    public string GUID { get; set; }
+    public string PrefabName { get; set; }
 
 }

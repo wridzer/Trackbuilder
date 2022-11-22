@@ -1,10 +1,8 @@
 ﻿using System.Collections;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Assertions;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
-using UnityEditor;
 
 public class Exporter
 {
@@ -28,7 +26,8 @@ public class Exporter
             data.rotationY = command.Rotation.y;
             data.rotationZ = command.Rotation.z;
             data.rotationW = command.Rotation.w;
-            data.GUID = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(command.Prefab));
+            //data.PrefabName = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(command.Prefab));
+            data.PrefabName = command.Prefab.name;
             dataList.Add(data);
         }
 

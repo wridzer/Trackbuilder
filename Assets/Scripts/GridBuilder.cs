@@ -2,21 +2,20 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.RuntimeSceneSerialization;
-using UnityEngine.SceneManagement;
-using UnityEditor;
+//using UnityEditor;
 using UnityEngine.UI;
 
 public class GridBuilder : MonoBehaviour
 {
-    //General settings
+    // General settings
     public string assetBundleName { get; set; }
     public string exportPath { get; set; }
     public GameObject ToolButtonPrefab, toolSelector, EraseButtonPrefab;
     public Material previewMat;
     public Texture2D eraseButtonTexure;
+    public RenderTexture RTexture;
 
-    //GridSettings
+    // GridSettings
     public int gridHeight { get; set; }
     public int gridWidth { get; set; }
     public int gridLength{ get; set; }
@@ -25,10 +24,11 @@ public class GridBuilder : MonoBehaviour
     private List<GameObject> toolsList = new List<GameObject>();
     public Controls controls;
     private StateMachine stateMachine;
+    [HideInInspector] public object[] assets;
 
     public void BuildGrid()
     {
-        //Generate grid
+        // Generate grid
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
@@ -40,39 +40,50 @@ public class GridBuilder : MonoBehaviour
             }
         }
 
-        //Set settings on control
+        // Set settings on control
         controls = GetComponent<Controls>();
         controls.gridTiles = gridTiles;
         controls.gridScale = new Vector3Int(gridWidth, gridHeight, gridLength);
         controls.previewMaterial = previewMat;
         controls.enabled = true;
 
-        //Create states for tools
+        // Create states for tools
         stateMachine = new StateMachine();
         AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, assetBundleName));
         Object[] bundleAssets = bundle.LoadAllAssets();
 
-        //Add toolbutton for erase
+        // Add toolbutton for erase
         GameObject newEraseButton = Instantiate(EraseButtonPrefab, toolSelector.transform);
         newEraseButton.GetComponent<EraseButton>().gridBuilder = this;
         toolsList.Add(newEraseButton);
 
+        // Preview image camera
+        GameObject camera = new GameObject();
+        camera.gameObject.AddComponent<Camera>();
+        camera.transform.position = new Vector3(1000, 1000, 998);
+        Camera cam = camera.GetComponent<Camera>();
+        cam.targetTexture = RTexture;
+
         foreach (object asset in bundleAssets)
         {
-            //load prefab
+            // Load prefab
             GameObject prefab = (GameObject)asset;
 
-            //create state in statemachine
+            // Create state in statemachine
             State newState = new ToolState(typeof(PlaceObjectCommand), prefab, controls);
             stateMachine.AddState(newState);
 
-            //create button with image
+            // Create button with image
             GameObject newButton = Instantiate(ToolButtonPrefab, toolSelector.transform);
             newButton.GetComponent<ToolButton>().SetVariables(stateMachine, newState);
-            Texture2D buttonImage = AssetPreview.GetAssetPreview(prefab);
-            newButton.GetComponentInChildren<RawImage>().texture = buttonImage;
+            if (prefab != null)
+            {
+                newButton.GetComponentInChildren<RawImage>().texture = GetToolPreview(prefab, cam);
+            }
             toolsList.Add(newButton);
         }
+
+        Destroy(camera);
     }
 
     public void ClearAll()
@@ -102,9 +113,35 @@ public class GridBuilder : MonoBehaviour
     {
         if(exportPath == null)
         {
-            string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
-            exportPath = directory;
+            // handle error
+            // tell user to fill in export path
+
+
+            //string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
+            //exportPath = directory;
         }
         controls.Export(exportPath, this);
+    }
+
+    private Texture2D GetToolPreview(GameObject _prefab, Camera _cam)
+    {
+        // Spawn Objects
+        GameObject temp = Instantiate(_prefab, new Vector3(1000, 1000, 1000), Quaternion.identity);    //spawn gameobject
+
+        // Generate Texture
+        _cam.backgroundColor = Color.white;
+        RenderTexture currentRT = RenderTexture.active;
+        RenderTexture.active = _cam.targetTexture;
+
+        _cam.Render();
+
+        Texture2D Image = new Texture2D(_cam.targetTexture.width, _cam.targetTexture.height);
+        Image.ReadPixels(new Rect(0, 0, _cam.targetTexture.width, _cam.targetTexture.height), 0, 0);
+        Image.Apply();
+        RenderTexture.active = currentRT;
+
+        Destroy(temp);
+
+        return Image;
     }
 }

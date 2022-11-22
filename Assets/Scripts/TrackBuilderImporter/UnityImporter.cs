@@ -60,7 +60,7 @@ namespace TrackBuilder
         private static ICommand CreateCommand(Type _classType, Data _data)
         {
             //Get Prefab
-            string assetPath = AssetDatabase.GUIDToAssetPath(_data.GUID);
+            string assetPath = AssetDatabase.GUIDToAssetPath(_data.PrefabName);
             GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
             Debug.Log(assetPath);
             if (prefab == null) { Debug.Log("Error on importing: " + assetPath); return null; }

@@ -8,9 +8,13 @@ using System;
 
 public class Importer :MonoBehaviour
 {
+    [HideInInspector] public static GridBuilder builderInstance;
+
     public static List<ICommand> Import(string fileName, GridBuilder _builderInstance)
     {
         Debug.Log("Importing");
+
+        builderInstance = _builderInstance;
 
         string url = Path.Combine(Application.persistentDataPath, fileName);
 
@@ -29,6 +33,13 @@ public class Importer :MonoBehaviour
             dataList = importData.data;
             settings = importData.settings;
 
+            //Import gridsettings
+             _builderInstance.assetBundleName = settings.assetBundleName;
+             _builderInstance.exportPath = settings.exportPath;
+             _builderInstance.gridHeight = settings.gridHeight;
+             _builderInstance.gridWidth = settings.gridWidth;
+             _builderInstance.gridLength = settings.gridLength;
+
             //Import gridobjects
             foreach (Data data in dataList)
             {
@@ -46,13 +57,6 @@ public class Importer :MonoBehaviour
 
                 commandList.Add(command);
             }
-
-            //Import gridsettings
-             _builderInstance.assetBundleName = settings.assetBundleName;
-             _builderInstance.exportPath = settings.exportPath;
-             _builderInstance.gridHeight = settings.gridHeight;
-             _builderInstance.gridWidth = settings.gridWidth;
-             _builderInstance.gridLength = settings.gridLength;
         }
         catch (System.Exception e)
         {
@@ -65,10 +69,19 @@ public class Importer :MonoBehaviour
     private static ICommand CreateCommand(Type _classType, Data _data)
     {
         //Get Prefab
-        string assetPath = AssetDatabase.GUIDToAssetPath(_data.GUID);
-        GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
-        Debug.Log(assetPath);
-        if (prefab == null) { Debug.Log("Error on importing: " + assetPath); return null; }
+        GameObject prefab = null;
+        object[] bundleAssets = builderInstance.assets;
+        foreach (object asset in bundleAssets)
+        {
+            GameObject tempPrefab = (GameObject)asset;
+            if (tempPrefab.name == _data.PrefabName)
+            {
+                //load prefab
+                prefab = (GameObject)asset;
+            }
+        }
+
+        if (prefab == null) { Debug.Log("Error on importing prefab"); return null; }
 
         //Create Command
         ICommand command = (ICommand)Activator.CreateInstance(

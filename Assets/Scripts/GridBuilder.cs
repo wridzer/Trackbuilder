@@ -2,13 +2,14 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using UnityEditor;
 using UnityEngine.UI;
+using UnityEngine.Windows;
+using Directory = System.IO.Directory;
 
 public class GridBuilder : MonoBehaviour
 {
     // General settings
-    public string assetBundleName { get; set; }
+    public string assetBundlePath { get; set; }
     public string exportPath { get; set; }
     public GameObject ToolButtonPrefab, toolSelector, EraseButtonPrefab;
     public Material previewMat;
@@ -25,6 +26,7 @@ public class GridBuilder : MonoBehaviour
     public Controls controls;
     private StateMachine stateMachine;
     [HideInInspector] public object[] assets;
+    public DialogueBox dialogueBox;
 
     public void BuildGrid()
     {
@@ -49,8 +51,9 @@ public class GridBuilder : MonoBehaviour
 
         // Create states for tools
         stateMachine = new StateMachine();
-        AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, assetBundleName));
+        AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Application.streamingAssetsPath, assetBundlePath));
         Object[] bundleAssets = bundle.LoadAllAssets();
+        assets = bundleAssets;
 
         // Add toolbutton for erase
         GameObject newEraseButton = Instantiate(EraseButtonPrefab, toolSelector.transform);
@@ -58,10 +61,12 @@ public class GridBuilder : MonoBehaviour
         toolsList.Add(newEraseButton);
 
         // Preview image camera
-        GameObject camera = new GameObject();
+        GameObject camera = new GameObject("ButtonPreviewCamera");
         camera.gameObject.AddComponent<Camera>();
         camera.transform.position = new Vector3(1000, 1000, 998);
         Camera cam = camera.GetComponent<Camera>();
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = Color.white;
         cam.targetTexture = RTexture;
 
         foreach (object asset in bundleAssets)
@@ -105,31 +110,25 @@ public class GridBuilder : MonoBehaviour
     {
         ClearAll();
         List <ICommand> importData = Importer.Import(_filePath, this);
-        BuildGrid();
+        //BuildGrid();
         controls.Import(importData);
     }
 
     public void ExportGrid()
     {
-        if(exportPath == null)
+        if(!Directory.Exists(exportPath) || exportPath == null)
         {
-            // handle error
-            // tell user to fill in export path
-
-
-            //string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
-            //exportPath = directory;
+            dialogueBox.gameObject.SetActive(true);
+            dialogueBox.MessageText.text = "Please enter a valid export path in settings";
         }
         controls.Export(exportPath, this);
     }
 
     private Texture2D GetToolPreview(GameObject _prefab, Camera _cam)
     {
-        // Spawn Objects
-        GameObject temp = Instantiate(_prefab, new Vector3(1000, 1000, 1000), Quaternion.identity);    //spawn gameobject
+        GameObject temp = Instantiate(_prefab, new Vector3(1000, 1000, 1000), Quaternion.identity); //spawn gameobject
 
         // Generate Texture
-        _cam.backgroundColor = Color.white;
         RenderTexture currentRT = RenderTexture.active;
         RenderTexture.active = _cam.targetTexture;
 
@@ -140,6 +139,7 @@ public class GridBuilder : MonoBehaviour
         Image.Apply();
         RenderTexture.active = currentRT;
 
+        temp.SetActive(false); //Because C# garbage collection is garbage and only does it at end of frame >:(
         Destroy(temp);
 
         return Image;

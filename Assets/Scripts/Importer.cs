@@ -33,19 +33,22 @@ public class Importer :MonoBehaviour
             dataList = importData.data;
             settings = importData.settings;
 
-            //Import gridsettings
-             _builderInstance.assetBundleName = settings.assetBundleName;
+            // Import gridsettings
+             _builderInstance.assetBundlePath = settings.assetBundlePath;
              _builderInstance.exportPath = settings.exportPath;
              _builderInstance.gridHeight = settings.gridHeight;
              _builderInstance.gridWidth = settings.gridWidth;
              _builderInstance.gridLength = settings.gridLength;
 
-            //Import gridobjects
+            // Create grid
+            _builderInstance.BuildGrid();
+
+            // Import gridobjects
             foreach (Data data in dataList)
             {
                 ICommand command = null;
 
-                //Select Command Type
+                // Select Command Type
                 if (data.isErase)
                 { 
                     command = CreateCommand(typeof(EraseObjectCommand), data);
@@ -68,7 +71,7 @@ public class Importer :MonoBehaviour
 
     private static ICommand CreateCommand(Type _classType, Data _data)
     {
-        //Get Prefab
+        // Get Prefab
         GameObject prefab = null;
         object[] bundleAssets = builderInstance.assets;
         foreach (object asset in bundleAssets)
@@ -76,14 +79,12 @@ public class Importer :MonoBehaviour
             GameObject tempPrefab = (GameObject)asset;
             if (tempPrefab.name == _data.PrefabName)
             {
-                //load prefab
+                // Load prefab
                 prefab = (GameObject)asset;
             }
         }
 
-        if (prefab == null) { Debug.Log("Error on importing prefab"); return null; }
-
-        //Create Command
+        // Create Command
         ICommand command = (ICommand)Activator.CreateInstance(
             _classType,
             prefab,

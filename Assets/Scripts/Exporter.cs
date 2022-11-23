@@ -33,7 +33,7 @@ public class Exporter
 
         //Export gridsettings
         Settings settings = new Settings();
-        settings.assetBundleName = _builderInstance.assetBundleName;
+        settings.assetBundlePath = _builderInstance.assetBundlePath;
         settings.exportPath = _builderInstance.exportPath;
         settings.gridHeight = _builderInstance.gridHeight;
         settings.gridWidth = _builderInstance.gridWidth;

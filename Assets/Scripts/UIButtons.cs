@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System;
-//using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -14,6 +13,7 @@ public class UIButtons : MonoBehaviour
     [SerializeField] private GameObject settingsMenu;
     [SerializeField] private GameObject gridBuilder;
     [SerializeField] private GameObject buildButton;
+    [SerializeField] private DialogueBox DialogueBox;
 
     public void ToggleSettingsMenu()
     {
@@ -70,27 +70,29 @@ public class UIButtons : MonoBehaviour
     public void ImportButton(TMP_InputField _inputfield)
     {
         string directory = _inputfield.text;
-        gridBuilder.GetComponent<GridBuilder>().ImportGrid(directory);
-        settingsMenu.SetActive(false);
-        if (Directory.Exists(directory))
+        if (File.Exists(directory) && directory != null)
         {
+            gridBuilder.GetComponent<GridBuilder>().ImportGrid(directory);
+            settingsMenu.SetActive(false);
         } else
         {
-            EditorUtility.DisplayDialog("Error", "Please enter a valid import path", "Ok");
+            DialogueBox.gameObject.SetActive(true);
+            DialogueBox.MessageText.text = "Please enter a valid import path";
         }
     }
 
     public void ExportButton(TMP_InputField _inputfield)
     {
         string directory = _inputfield.text;
-        if (Directory.Exists(directory))
+        if (Directory.Exists(directory) && directory != null)
         {
             gridBuilder.GetComponent<GridBuilder>().exportPath = directory;
             gridBuilder.GetComponent<GridBuilder>().ExportGrid();
         }
         else
         {
-            EditorUtility.DisplayDialog("Error", "Please enter a valid export path", "Ok");
+            DialogueBox.gameObject.SetActive(true);
+            DialogueBox.MessageText.text = "Please enter a valid export path";
         }
     }
 
@@ -100,12 +102,13 @@ public class UIButtons : MonoBehaviour
         try
         {
             string fileName = Path.GetFileName(directory);
-            gridBuilder.GetComponent<GridBuilder>().assetBundleName = fileName;
+            gridBuilder.GetComponent<GridBuilder>().assetBundlePath = directory;
             OnValueChanged();
         }
         catch (Exception ex)
         {
-            EditorUtility.DisplayDialog("Error", "Please enter a valid prefabs path", "Ok");
+            DialogueBox.gameObject.SetActive(true);
+            DialogueBox.MessageText.text = "Please enter a valid prefabs path";
         }
     }
 }

@@ -10,7 +10,7 @@ public class Exporter
     {
         Debug.Log("Exporting");
 
-        //Export Grid items
+        // Export Grid items
         List<Data> dataList = new List<Data>();
         foreach(ICommand command in commandList)
         {
@@ -26,12 +26,11 @@ public class Exporter
             data.rotationY = command.Rotation.y;
             data.rotationZ = command.Rotation.z;
             data.rotationW = command.Rotation.w;
-            //data.PrefabName = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(command.Prefab));
             data.PrefabName = command.Prefab.name;
             dataList.Add(data);
         }
 
-        //Export gridsettings
+        // Export gridsettings
         Settings settings = new Settings();
         settings.assetBundlePath = _builderInstance.assetBundlePath;
         settings.exportPath = _builderInstance.exportPath;
@@ -39,7 +38,7 @@ public class Exporter
         settings.gridWidth = _builderInstance.gridWidth;
         settings.gridLength = _builderInstance.gridLength;
 
-        //Create exportable file
+        // Create exportable file
         GridBuilderProjectData exportData = new GridBuilderProjectData();
         exportData.data = dataList;
         exportData.settings = settings;

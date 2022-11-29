@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Windows;
 using Directory = System.IO.Directory;
 
 public class GridBuilder : MonoBehaviour
@@ -110,7 +109,6 @@ public class GridBuilder : MonoBehaviour
     {
         ClearAll();
         List <ICommand> importData = Importer.Import(_filePath, this);
-        //BuildGrid();
         controls.Import(importData);
     }
 
@@ -124,6 +122,7 @@ public class GridBuilder : MonoBehaviour
         controls.Export(exportPath, this);
     }
 
+    // Gets preview picture for the button
     private Texture2D GetToolPreview(GameObject _prefab, Camera _cam)
     {
         GameObject temp = Instantiate(_prefab, new Vector3(1000, 1000, 1000), Quaternion.identity); //spawn gameobject

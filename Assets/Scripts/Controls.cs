@@ -5,23 +5,23 @@ using UnityEngine.EventSystems;
 
 public class Controls : MonoBehaviour
 {
-    //ControlVariables
+    // ControlVariables
     private int scrollIndex = 0;
     private Vector3Int selectedPos;
     private bool isSelectedPlaceValid;
     private GameObject selectPlane;
     private Vector3 objectRotation;
 
-    //GridVariables
+    // GridVariables
     public Vector3Int gridScale;
     public Dictionary<Vector3, GameObject> gridTiles = new Dictionary<Vector3, GameObject>();
     private GameObject previewObject;
 
-    //CommandPattern
+    // CommandPattern
     private List<ICommand> commands = new List<ICommand>();
     private int commandIndex = -1;
 
-    //StateVariables
+    // StateVariables
     [HideInInspector] public GameObject toolPrefab;
     [HideInInspector] public Material previewMaterial;
     [HideInInspector] public bool eraseMode = false;
@@ -55,7 +55,7 @@ public class Controls : MonoBehaviour
 
     private void HandleInput()
     {
-        //Select Height
+        // Select Height
         if (Input.GetAxis("Mouse ScrollWheel") > 0)
         {
             if (scrollIndex < gridScale.y - 1)
@@ -70,7 +70,7 @@ public class Controls : MonoBehaviour
                 scrollIndex--;
             }
         }
-        //Rotation
+        // Rotation
         if (Input.GetKeyDown(KeyCode.R))
         {
             objectRotation.x += 90f;
@@ -89,7 +89,7 @@ public class Controls : MonoBehaviour
             if (objectRotation.x == 360) { objectRotation.x = 0; }
             PreviewObject();
         }
-        //Click Input
+        // Click Input
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (!EventSystem.current.IsPointerOverGameObject())
@@ -98,7 +98,7 @@ public class Controls : MonoBehaviour
                 else { PlaceBlock(); }
             }
         }
-        //Redo an Undo
+        // Redo an Undo
         if (Input.GetKey(KeyCode.LeftControl))
         {
             if (Input.GetKeyDown(KeyCode.Z))
@@ -110,7 +110,7 @@ public class Controls : MonoBehaviour
                 Redo();
             }
         }
-        //Switch erasemode
+        // Switch erasemode
         if (Input.GetKeyDown(KeyCode.E))
         {
             eraseMode = !eraseMode;
@@ -137,10 +137,10 @@ public class Controls : MonoBehaviour
     {
         RemoveHistory();
 
-        //Translate rotation
+        // Translate rotation
         Quaternion placementRotation = Quaternion.Euler(objectRotation);
 
-        //Check if place is valid and place block
+        // Check if place is valid and place block
         if (isSelectedPlaceValid)
         {
             PlaceObjectCommand command = new PlaceObjectCommand(toolPrefab, selectedPos, placementRotation);
@@ -157,7 +157,7 @@ public class Controls : MonoBehaviour
             Destroy(previewObject.gameObject);
         }
 
-        //Translate rotation
+        // Translate rotation
         Quaternion placementRotation = Quaternion.Euler(objectRotation);
 
         if (isSelectedPlaceValid)
@@ -188,7 +188,7 @@ public class Controls : MonoBehaviour
 
     public void Export(string _filePath, GridBuilder gb)
     {
-        //Export only until current index
+        // Export only until current index
         List<ICommand> exportCommands = new List<ICommand>();
         for(int i = 0; i <= commandIndex; i++)
         {
@@ -220,7 +220,7 @@ public class Controls : MonoBehaviour
         commandIndex = commands.Count - 1;
     }
 
-    //Get selected Place
+    // Get selected Place
     private void SelectBlock()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

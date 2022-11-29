@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
-using System.Diagnostics;
-using UnityEditor;
 
 public class UIButtons : MonoBehaviour
 {
@@ -19,34 +17,6 @@ public class UIButtons : MonoBehaviour
     {
         settingsMenu.SetActive(!settingsMenu.activeSelf);
     }
-
-    //public async void BrowsePrefabs()
-    //{
-    //    Process process =  Process.Start("explorer.exe", "/select,");
-    //    process.WaitForInputIdle();
-    //    string directory = process.StandardOutput.ToString();
-    //    //string directory = EditorUtility.OpenFilePanel("Select Directory", "", "");
-    //    inputFieldPrefabs.text = directory;
-    //    string fileName = Path.GetFileName(directory);
-    //    gridBuilder.GetComponent<GridBuilder>().assetBundleName = fileName;
-    //    OnValueChanged();
-    //}
-
-    //public void BrowseExport()
-    //{
-    //    string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
-    //    inputFieldExport.text = directory;
-    //    gridBuilder.GetComponent<GridBuilder>().exportPath = directory;
-    //}
-
-    //public void BrowseImport()
-    //{
-    //    string directory = EditorUtility.OpenFolderPanel("Select Directory", "", "");
-    //    inputFieldExport.text = directory;
-    //    //clear existing grid
-    //    gridBuilder.GetComponent<GridBuilder>().ImportGrid(directory);
-    //    settingsMenu.SetActive(false);
-    //}
 
     public void OnValueChanged()
     {
@@ -62,7 +32,6 @@ public class UIButtons : MonoBehaviour
 
     public void GenerateGrid()
     {
-        //clear existing grid
         gridBuilder.GetComponent<GridBuilder>().BuildGrid();
         settingsMenu.SetActive(false);
     }
@@ -98,7 +67,7 @@ public class UIButtons : MonoBehaviour
 
     public void PrefabButton(TMP_InputField _inputfield)
     {
-        string directory = _inputfield.text;
+        string directory = Application.streamingAssetsPath + "\\" + _inputfield.text;
         try
         {
             string fileName = Path.GetFileName(directory);
@@ -110,5 +79,10 @@ public class UIButtons : MonoBehaviour
             DialogueBox.gameObject.SetActive(true);
             DialogueBox.MessageText.text = "Please enter a valid prefabs path";
         }
+    }
+
+    public void QuitButton()
+    {
+        Application.Quit();
     }
 }
